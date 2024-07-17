@@ -4,6 +4,27 @@
     <title>Direct Stream Player</title>
 </head>
 <body>
+    <h3>Stream Format Check:</h3>
+<div id="formatCheck"></div>
+<script>
+fetch('http://45.32.175.129:9300/stream')
+    .then(response => response.arrayBuffer())
+    .then(buffer => {
+        const arr = new Uint8Array(buffer).subarray(0, 4);
+        let header = '';
+        for(let i = 0; i < arr.length; i++) {
+            header += arr[i].toString(16);
+        }
+        let format = 'Unknown';
+        if(header.startsWith('fff')) format = 'MP3';
+        else if(header.startsWith('4944')) format = 'AAC';
+        else if(header.startsWith('4f676753')) format = 'OGG';
+        document.getElementById('formatCheck').textContent = `Stream format appears to be: ${format} (Header: ${header})`;
+    })
+    .catch(error => {
+        document.getElementById('formatCheck').textContent = 'Error checking format: ' + error;
+    });
+</script>
     <h2>Direct Stream Player</h2>
     <audio id="audioPlayer" controls>
         <source src="http://45.32.175.129:9300/stream" type="audio/mpeg">
