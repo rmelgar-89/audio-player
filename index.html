@@ -1,45 +1,49 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Audio Player</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mediaelement/4.2.16/mediaelement-and-player.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mediaelement/4.2.16/mediaelementplayer.min.css">
+    <title>Direct Stream Player</title>
 </head>
 <body>
-    <h2>MediaElement.js Player:</h2>
-    <audio id="player1" controls style="max-width:100%;">
-        <source src="http://45.32.175.129:9300/stream" type="audio/mpeg">
-    </audio>
-
-    <div id="status"></div>
-
-    <script>
-        var player = new MediaElementPlayer('player1', {
-            success: function(mediaElement, originalNode, instance) {
-                mediaElement.addEventListener('play', function() {
-                    document.getElementById('status').textContent = 'Playing';
-                });
-                mediaElement.addEventListener('pause', function() {
-                    document.getElementById('status').textContent = 'Paused';
-                });
-                mediaElement.addEventListener('ended', function() {
-                    document.getElementById('status').textContent = 'Ended';
-                });
-                mediaElement.addEventListener('error', function(e) {
-                    document.getElementById('status').textContent = 'Error: ' + e.message;
-                    console.error('MediaElement Error:', e);
-                });
-            },
-            error: function(e) {
-                console.error('MediaElement setup error:', e);
-            }
-        });
-    </script>
-
-    <h3>Direct Stream Test:</h3>
-    <audio id="direct_player" controls>
+    <h2>Direct Stream Player</h2>
+    <audio id="audioPlayer" controls>
         <source src="http://45.32.175.129:9300/stream" type="audio/mpeg">
         Your browser does not support the audio element.
     </audio>
+    <div id="status"></div>
+
+    <script>
+    const audioPlayer = document.getElementById('audioPlayer');
+    const statusDiv = document.getElementById('status');
+
+    audioPlayer.onplay = () => statusDiv.textContent = 'Playing';
+    audioPlayer.onpause = () => statusDiv.textContent = 'Paused';
+    audioPlayer.onwaiting = () => statusDiv.textContent = 'Buffering...';
+    audioPlayer.onerror = (e) => {
+        console.error('Audio error:', e);
+        statusDiv.textContent = 'Error: ' + (audioPlayer.error ? audioPlayer.error.message : 'Unknown error');
+    };
+    </script>
+
+    <h3>Alternative Formats:</h3>
+    <audio controls>
+        <source src="http://45.32.175.129:9300/stream" type="audio/aac">
+        <source src="http://45.32.175.129:9300/stream" type="audio/ogg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <h3>Stream Information:</h3>
+    <div id="streamInfo"></div>
+    <script>
+    fetch('http://45.32.175.129:9300/stream', { method: 'HEAD' })
+        .then(response => {
+            let info = 'Content-Type: ' + response.headers.get('Content-Type') + '<br>';
+            info += 'Content-Length: ' + response.headers.get('Content-Length') + '<br>';
+            info += 'Status: ' + response.status;
+            document.getElementById('streamInfo').innerHTML = info;
+        })
+        .catch(error => {
+            document.getElementById('streamInfo').textContent = 'Error fetching stream info: ' + error;
+        });
+    </script>
 </body>
 </html>
