@@ -10,7 +10,7 @@
             $("#jquery_jplayer_1").jPlayer({
                 ready: function () {
                     $(this).jPlayer("setMedia", {
-                        mp3: "http://45.32.175.129:9300/stream"
+                        mp3: "https://cors-anywhere.herokuapp.com/http://45.32.175.129:9300/stream"
                     });
                 },
                 supplied: "mp3",
@@ -20,7 +20,12 @@
                 smoothPlayBar: true,
                 keyEnabled: true,
                 remainingDuration: true,
-                toggleDuration: true
+                toggleDuration: true,
+                error: function(event) {
+                    console.log("Error event:", event);
+                    console.log("Error type:", event.jPlayer.error.type);
+                    console.log("Error message:", event.jPlayer.error.message);
+                }
             });
         });
     </script>
@@ -57,5 +62,17 @@
             </div>
         </div>
     </div>
+    <div id="status"></div>
+    <script>
+        $("#jquery_jplayer_1").bind($.jPlayer.event.play, function(event) { 
+            $("#status").text("Playing");
+        });
+        $("#jquery_jplayer_1").bind($.jPlayer.event.pause, function(event) { 
+            $("#status").text("Paused");
+        });
+        $("#jquery_jplayer_1").bind($.jPlayer.event.ended, function(event) { 
+            $("#status").text("Ended");
+        });
+    </script>
 </body>
 </html>
